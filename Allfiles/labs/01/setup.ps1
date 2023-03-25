@@ -78,13 +78,16 @@ foreach ($provider in $provider_list){
 # Generate unique random suffix
 [string]$suffix =  -join ((48..57) + (97..122) | Get-Random -Count 7 | % {[char]$_})
 Write-Host "Your randomly-generated suffix for Azure resources is $suffix"
-$resourceGroupName = "dp203-$suffix"
+# $resourceGroupName = "dp203-$suffix"
+$resourceGroupName = "dp203-mslearn-quyennx4"
+
 
 # Choose a random region
 Write-Host "Finding an available region. This may take several minutes...";
 $delay = 0, 30, 60, 90, 120 | Get-Random
 Start-Sleep -Seconds $delay # random delay to stagger requests from multi-student classes
-$preferred_list = "australiaeast","centralus","southcentralus","eastus2","northeurope","southeastasia","uksouth","westeurope","westus","westus2"
+# $preferred_list = "australiaeast","centralus","southcentralus","eastus2","northeurope","southeastasia","uksouth","westeurope","westus","westus2"
+$preferred_list = "southeastasia"
 $locations = Get-AzLocation | Where-Object {
     $_.Providers -contains "Microsoft.Synapse" -and
     $_.Providers -contains "Microsoft.Sql" -and
@@ -94,7 +97,8 @@ $locations = Get-AzLocation | Where-Object {
 }
 $max_index = $locations.Count - 1
 $rand = (0..$max_index) | Get-Random
-$Region = $locations.Get($rand).Location
+# $Region = $locations.Get($rand).Location
+$Region = $locations.Location
 
 # Test for subscription Azure SQL capacity constraints in randomly selected regions
 # (for some subsription types, quotas are adjusted dynamically based on capacity)
@@ -150,6 +154,16 @@ New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName `
   -adxPoolName $adxpool `
   -uniqueSuffix $suffix `
   -Force
+
+# End of general setup -> Start specific setup for labs
+# Reset the variables name as in lab01
+$suffix = "kz8pb7"
+
+$synapseWorkspace = "synapse$suffix"
+$dataLakeAccountName = "datalake$suffix"
+$sparkPool = "spark$suffix"
+$sqlDatabaseName = "sql$suffix"
+$adxpool = "adx$suffix"
 
 # Pause Data Explorer pool
 write-host "Pausing the $adxpool Data Explorer Pool..."
